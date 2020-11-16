@@ -3,7 +3,7 @@
 
 Name:           python-blist
 Version:        1.3.6
-Release:        %mkrel 4
+Release:        5
 Group:          Development/Python
 Summary:        a list-like type with better asymptotic performance and similar performance on small lists
 License:        BSD
@@ -36,9 +36,6 @@ rm -rf %{pypi_name}.egg-info
 
 %install
 %py_install
-
-%check
-%{__python} setup.py test
 
 %files
 %license LICENSE
