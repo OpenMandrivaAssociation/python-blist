@@ -1,0 +1,41 @@
+From 4252e087f9acae07a098bea91b8bec0f207f3d1c Mon Sep 17 00:00:00 2001
+From: witherj <jamie@wither.co.uk>
+Date: Mon, 21 Oct 2019 15:49:48 +0100
+Subject: [PATCH] fixing compile problem mentioned in issue-83
+
+---
+ blist/_blist.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/blist/_blist.c b/blist/_blist.c
+index f7fcb60..1d23d71 100644
+--- a/blist/_blist.c
++++ b/blist/_blist.c
+@@ -5987,11 +5987,10 @@ py_blist_ass_subscript(PyObject *oself, PyObject *item, PyObject *value)
+                 ext_mark(self, 0, DIRTY);
+ 
+ #if PY_MAJOR_VERSION < 3 || PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 2
+-                if (PySlice_GetIndicesEx((PySliceObject*)item, self->n,
++                if (PySlice_GetIndicesEx((PySliceObject*)item, self->n, &start, &stop, &step, &slicelength)<0)
+ #else
+-                if (PySlice_GetIndicesEx(item, self->n,
++                if (PySlice_GetIndicesEx(item, self->n, &start, &stop, &step, &slicelength)<0)
+ #endif
+-                                         &start, &stop,&step,&slicelength)<0)
+                         return _int(-1);
+ 
+                 /* treat L[slice(a,b)] = v _exactly_ like L[a:b] = v */
+@@ -6956,11 +6955,10 @@ py_blist_subscript(PyObject *oself, PyObject *item)
+                 PyObject* it;
+ 
+ #if PY_MAJOR_VERSION < 3 || PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION < 2
+-                if (PySlice_GetIndicesEx((PySliceObject*)item, self->n,
++                if (PySlice_GetIndicesEx((PySliceObject*)item, self->n, &start, &stop, &step, &slicelength)<0) {
+ #else
+-                if (PySlice_GetIndicesEx(item, self->n,
++                if (PySlice_GetIndicesEx(item, self->n, &start, &stop, &step, &slicelength)<0) {
+ #endif
+-                                         &start, &stop,&step,&slicelength)<0) {
+                         return _ob(NULL);
+                 }
+ 

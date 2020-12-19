@@ -1,0 +1,101 @@
+From 29fabf804aaded386231733047eb700aff43724b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Felix=20Kleine=20B=C3=B6sing?= <felix.boesing@t-online.de>
+Date: Wed, 4 Dec 2019 14:08:39 +0100
+Subject: [PATCH] replace import collections with collections.abc
+
+replaced collections with collections.abc to be compatible with python 3.8
+---
+ blist/__init__.py              | 2 +-
+ blist/_btuple.py               | 2 +-
+ blist/_sorteddict.py           | 2 +-
+ blist/_sortedlist.py           | 2 +-
+ blist/test/mapping_tests.py    | 2 +-
+ blist/test/sortedlist_tests.py | 2 +-
+ blist/test/test_set.py         | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/blist/__init__.py b/blist/__init__.py
+index 931aaac..38c01a9 100644
+--- a/blist/__init__.py
++++ b/blist/__init__.py
+@@ -1,6 +1,6 @@
+ __version__ = '1.3.6'
+ from blist._blist import *
+-import collections
++import collections.abc as collections
+ if hasattr(collections, 'MutableSet'): # Only supported in Python 2.6+
+     from blist._sortedlist import sortedlist, sortedset, weaksortedlist, weaksortedset
+     from blist._sorteddict import sorteddict
+diff --git a/blist/_btuple.py b/blist/_btuple.py
+index 1e409cd..c621aad 100644
+--- a/blist/_btuple.py
++++ b/blist/_btuple.py
+@@ -1,6 +1,6 @@
+ from blist._blist import blist
+ from ctypes import c_int
+-import collections
++import collections.abc as collections
+ class btuple(collections.Sequence):
+     def __init__(self, seq=None):
+         if isinstance(seq, btuple):
+diff --git a/blist/_sorteddict.py b/blist/_sorteddict.py
+index fcdf7e4..ff96f97 100644
+--- a/blist/_sorteddict.py
++++ b/blist/_sorteddict.py
+@@ -1,5 +1,5 @@
+ from blist._sortedlist import sortedset, ReprRecursion
+-import collections, sys
++import collections.abc as collections, sys
+ from blist._blist import blist
+ 
+ class missingdict(dict):
+diff --git a/blist/_sortedlist.py b/blist/_sortedlist.py
+index b34f69e..7166aee 100644
+--- a/blist/_sortedlist.py
++++ b/blist/_sortedlist.py
+@@ -1,5 +1,5 @@
+ from blist._blist import blist
+-import collections, bisect, weakref, operator, itertools, sys, threading
++import collections.abc as collections, bisect, weakref, operator, itertools, sys, threading
+ try: # pragma: no cover
+     izip = itertools.izip
+ except AttributeError: # pragma: no cover
+diff --git a/blist/test/mapping_tests.py b/blist/test/mapping_tests.py
+index d0a8da9..7225752 100644
+--- a/blist/test/mapping_tests.py
++++ b/blist/test/mapping_tests.py
+@@ -2,7 +2,7 @@
+ 
+ # tests common to dict and UserDict
+ import sys
+-import collections
++import collections.abc as collections
+ from blist.test import unittest
+ try:
+     from collections import UserDict # Python 3
+diff --git a/blist/test/sortedlist_tests.py b/blist/test/sortedlist_tests.py
+index 1cff8b9..54d1a78 100644
+--- a/blist/test/sortedlist_tests.py
++++ b/blist/test/sortedlist_tests.py
+@@ -1,7 +1,7 @@
+ # This file based loosely on Python's list_tests.py.
+ 
+ import sys
+-import collections, operator
++import collections.abc as collections, operator
+ import gc
+ import random
+ import blist
+diff --git a/blist/test/test_set.py b/blist/test/test_set.py
+index da78daf..21208b6 100644
+--- a/blist/test/test_set.py
++++ b/blist/test/test_set.py
+@@ -10,7 +10,7 @@
+ from random import randrange, shuffle
+ import sys
+ import warnings
+-import collections
++import collections.abc as collections
+ 
+ from blist.test import unittest
+ from blist.test import test_support as support

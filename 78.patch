@@ -1,8 +1,17 @@
+From 2dc1ec28ed68611fcec9ac1c68070c782d6b4b4e Mon Sep 17 00:00:00 2001
+From: Felix Yan <felixonmars@archlinux.org>
+Date: Tue, 3 Jul 2018 03:04:52 +0800
+Subject: [PATCH] Fix compatibility for Python 3.7
+
+---
+ blist/_sortedlist.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
 diff --git a/blist/_sortedlist.py b/blist/_sortedlist.py
 index b34f69e..013989d 100644
 --- a/blist/_sortedlist.py
 +++ b/blist/_sortedlist.py
-@@ -419,8 +419,7 @@ class _setmixin(object):
+@@ -419,8 +419,7 @@ def add(self, value):
  
      def __iter__(self):
          it = super(_setmixin, self).__iter__()

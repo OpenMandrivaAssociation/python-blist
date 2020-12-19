@@ -1,0 +1,35 @@
+From bdceb2355cd30f76999a3a4247d9683c6931d912 Mon Sep 17 00:00:00 2001
+From: Andrej Shadura <andrew.shadura@collabora.co.uk>
+Date: Sun, 8 Jul 2018 09:00:16 +0200
+Subject: [PATCH] Catch StopIteration in a generator and return instead, per
+ PEP 479
+
+Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
+---
+ blist/_sortedlist.py | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/blist/_sortedlist.py b/blist/_sortedlist.py
+index b34f69e..1f77170 100644
+--- a/blist/_sortedlist.py
++++ b/blist/_sortedlist.py
+@@ -420,11 +420,14 @@ def add(self, value):
+     def __iter__(self):
+         it = super(_setmixin, self).__iter__()
+         while True:
+-            item = next(it)
+-            n = len(self)
+-            yield item
+-            if n != len(self):
+-                raise RuntimeError('Set changed size during iteration')
++            try:
++                item = next(it)
++                n = len(self)
++                yield item
++                if n != len(self):
++                    raise RuntimeError('Set changed size during iteration')
++            except StopIteration:
++                return
+ 
+ def safe_cmp(f):
+     def g(self, other):

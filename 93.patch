@@ -1,0 +1,39 @@
+From 75dd29314a196576f1183435c63254ef8213e93c Mon Sep 17 00:00:00 2001
+From: Dustin Wehr <dustin.wehr@gmail.com>
+Date: Mon, 23 Nov 2020 15:07:01 -0500
+Subject: [PATCH] remove __setitem__ from sortedlist docs
+
+It's not available in the class in v1.3.6, which jives with my impression that it's not meant to be.
+
+On the other hand, I can imagine you might have written an optimization of
+```
+__setitem__(L,i,x):
+    Throw exception if i is not the insertion position of x.
+    Otherwise:
+    del L[i]
+    L.add(x)
+```
+And in fact I'd have used such a method, in a situation where the insertion position was already deduced for some reason other than inserting `x`.
+---
+ doc/sortedlist.rst | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/doc/sortedlist.rst b/doc/sortedlist.rst
+index 820b1a1..515bd22 100644
+--- a/doc/sortedlist.rst
++++ b/doc/sortedlist.rst
+@@ -130,14 +130,6 @@ sortedlist
+ 
+       :rtype: iterator
+ 
+-   .. method:: L[i] = x
+-
+-      Replace the item at position *i* of *L* with *x*.
+-
+-      Requires |theta(log n)| operations in the worst case but only
+-      |theta(1)| operations if the list's size has not been changed
+-      recently.  Requires no comparisons in any case.
+-
+    .. method:: L[i:j] = iterable
+ 
+       Replace the items at positions *i* through *j* with the contents

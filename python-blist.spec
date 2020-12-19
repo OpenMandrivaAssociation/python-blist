@@ -1,15 +1,22 @@
 # Created by pyp2rpm-1.0.1
 %global pypi_name blist
 
+# This package is unmaintained upstream. Check its github PRs for
+# important fixes when working on the package.
+# https://github.com/DanielStutzbach/blist/pulls
+
 Name:           python-blist
 Version:        1.3.6
-Release:        5
+Release:        6
 Group:          Development/Python
 Summary:        a list-like type with better asymptotic performance and similar performance on small lists
 License:        BSD
 URL:            http://pypi.python.org/pypi/blist/
 Source0:        https://pypi.python.org/packages/source/b/blist/blist-%{version}.tar.gz
-Patch1:         python-3.8.patch
+Patch0:		https://github.com/DanielStutzbach/blist/pull/84.patch
+Patch1:		https://github.com/DanielStutzbach/blist/pull/85.patch
+Patch2:		https://github.com/DanielStutzbach/blist/pull/91.patch
+Patch3:		https://github.com/DanielStutzbach/blist/pull/92.patch
 
 BuildRequires:  pkgconfig(python)
 BuildRequires:  python3dist(setuptools)
