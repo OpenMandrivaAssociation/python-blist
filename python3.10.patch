@@ -1,45 +1,18 @@
-diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_blist.c blist-1.3.6/blist/_blist.c
---- blist-1.3.6.orig/blist/_blist.c	2014-03-13 01:59:04.000000000 +0600
-+++ blist-1.3.6/blist/_blist.c	2021-12-14 23:05:45.394273964 +0600
-@@ -101,8 +101,9 @@
- /* This macro is defined in Python 3.  We need it since calling
-  * PyObject_GC_UnTrack twice is unsafe. */
- /* True if the object is currently tracked by the GC. */
--#define _PyObject_GC_IS_TRACKED(o)              \
-+/*#define _PyObject_GC_IS_TRACKED(o)              \
-         ((_Py_AS_GC(o))->gc.gc_refs != _PyGC_REFS_UNTRACKED)
-+*/
- 
- #if PY_MINOR_VERSION < 6
- /* Backward compatibility with Python 2.5 */
-@@ -4580,7 +4581,7 @@
- 
-         for (i = 0; i < leafs_n; i++) {
-                 PyBList *leaf = leafs[i];
--                if (leafs_n > 1 && !_PyObject_GC_IS_TRACKED(leafs[i]))
-+                if (leafs_n > 1 && !PyObject_GC_IsTracked((PyObject*)leafs[i]))
-                         PyObject_GC_Track(leafs[i]);
-                 for (j = 0; j < leaf->num_children && k < n; j++, k++) {
-                         sortwrapperobject *wrapper;
-@@ -5353,7 +5354,7 @@
- #define BITS_PER_PASS 8
- #define HISTOGRAM_SIZE (((Py_ssize_t) 1) << BITS_PER_PASS)
- #define MASK (HISTOGRAM_SIZE - 1)
--#define NUM_PASSES (((sizeof(unsigned long)*8-1) / BITS_PER_PASS)+1)
-+#define NUM_PASSES (Py_ssize_t)(((sizeof(unsigned long)*8-1) / BITS_PER_PASS)+1)
- 
- /* The histogram arrays are two-dimension arrays of
-  * [HISTOGRAM_SIZE][NUM_PASSES].  Since that can end up somewhat large (16k on
-@@ -5783,7 +5784,7 @@
-         assert(PyBList_Check(oself));
-         self = (PyBList *) oself;
- 
--        if (_PyObject_GC_IS_TRACKED(self))
-+        if (PyObject_GC_IsTracked((PyObject*)self))
-                 PyObject_GC_UnTrack(self);
- 
-         Py_TRASHCAN_SAFE_BEGIN(self)
-@@ -6589,7 +6590,7 @@
+From 4b88010f208080173d0976d271d4c3100bfbef17 Mon Sep 17 00:00:00 2001
+From: Steve Langasek <steve.langasek@ubuntu.com>
+Date: Thu, 18 Nov 2021 13:42:17 -0400
+Subject: [PATCH 1/3] Python 3.10 support: use Py_SET_REFCNT()
+
+Py_REFCNT() is no longer an lvalue; use Py_SET_REFCNT() instead.
+---
+ blist/_blist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/blist/_blist.c b/blist/_blist.c
+index f7fcb60..cacd6f2 100644
+--- a/blist/_blist.c
++++ b/blist/_blist.c
+@@ -6589,7 +6589,7 @@ py_blist_sort(PyBListRoot *self, PyObject *args, PyObject *kwds)
          memcpy(&saved.BLIST_FIRST_FIELD, &self->BLIST_FIRST_FIELD,
                 sizeof(*self) - offsetof(PyBListRoot, BLIST_FIRST_FIELD));
          Py_TYPE(&saved) = &PyRootBList_Type;
@@ -48,9 +21,38 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_blist.c blist-1.3.6/b
  
          if (extra_list != NULL) {
                  self->children = extra_list;
-diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_btuple.py blist-1.3.6/blist/_btuple.py
---- blist-1.3.6.orig/blist/_btuple.py	2012-12-10 01:09:14.000000000 +0600
-+++ blist-1.3.6/blist/_btuple.py	2021-12-14 23:04:49.210277227 +0600
+
+From fddb7837e2094560789a09790360feb75f06ed86 Mon Sep 17 00:00:00 2001
+From: Steve Langasek <steve.langasek@ubuntu.com>
+Date: Thu, 18 Nov 2021 13:42:42 -0400
+Subject: [PATCH 2/3] Python 3.10 support: use collections.abc.MutableSet
+
+collections.MutableSet is obsolete, replaced by
+collections.abc.MutableSet.
+---
+ blist/__init__.py              |  2 +-
+ blist/_btuple.py               |  2 +-
+ blist/_sorteddict.py           |  8 ++++----
+ blist/_sortedlist.py           | 24 ++++++++++++------------
+ blist/test/sortedlist_tests.py |  4 ++--
+ 5 files changed, 20 insertions(+), 20 deletions(-)
+
+diff --git a/blist/__init__.py b/blist/__init__.py
+index 931aaac..38c01a9 100644
+--- a/blist/__init__.py
++++ b/blist/__init__.py
+@@ -1,6 +1,6 @@
+ __version__ = '1.3.6'
+ from blist._blist import *
+-import collections
++import collections.abc as collections
+ if hasattr(collections, 'MutableSet'): # Only supported in Python 2.6+
+     from blist._sortedlist import sortedlist, sortedset, weaksortedlist, weaksortedset
+     from blist._sorteddict import sorteddict
+diff --git a/blist/_btuple.py b/blist/_btuple.py
+index 1e409cd..3a17972 100644
+--- a/blist/_btuple.py
++++ b/blist/_btuple.py
 @@ -1,7 +1,7 @@
  from blist._blist import blist
  from ctypes import c_int
@@ -60,21 +62,11 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_btuple.py blist-1.3.6
      def __init__(self, seq=None):
          if isinstance(seq, btuple):
              self._blist = seq._blist
-diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/__init__.py blist-1.3.6/blist/__init__.py
---- blist-1.3.6.orig/blist/__init__.py	2014-03-13 21:10:24.000000000 +0600
-+++ blist-1.3.6/blist/__init__.py	2021-12-14 23:04:49.214277225 +0600
-@@ -1,6 +1,6 @@
- __version__ = '1.3.6'
- from blist._blist import *
--import collections
-+import collections.abc as collections
- if hasattr(collections, 'MutableSet'): # Only supported in Python 2.6+
-     from blist._sortedlist import sortedlist, sortedset, weaksortedlist, weaksortedset
-     from blist._sorteddict import sorteddict
-diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sorteddict.py blist-1.3.6/blist/_sorteddict.py
---- blist-1.3.6.orig/blist/_sorteddict.py	2012-12-10 00:32:56.000000000 +0600
-+++ blist-1.3.6/blist/_sorteddict.py	2021-12-14 23:04:49.219610557 +0600
-@@ -6,7 +6,7 @@
+diff --git a/blist/_sorteddict.py b/blist/_sorteddict.py
+index fcdf7e4..daa132c 100644
+--- a/blist/_sorteddict.py
++++ b/blist/_sorteddict.py
+@@ -6,7 +6,7 @@ class missingdict(dict):
      def __missing__(self, key):
          return self._missing(key)
  
@@ -83,7 +75,7 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sorteddict.py blist-1
      def __getitem__(self, index):
          return self._mapping._sortedkeys[index]
      def __reversed__(self):
-@@ -23,7 +23,7 @@
+@@ -23,7 +23,7 @@ def bisect_right(self, key):
          return self._mapping._sortedkeys.bisect_right(key)
      bisect = bisect_right
  
@@ -92,7 +84,7 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sorteddict.py blist-1
      def __getitem__(self, index):
          if isinstance(index, slice):
              keys = self._mapping._sortedkeys[index]
-@@ -46,7 +46,7 @@
+@@ -46,7 +46,7 @@ def _from_iterable(self, it):
        else:
          return sortedset(it, key=lambda item: keyfunc(item[0]))
  
@@ -101,7 +93,7 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sorteddict.py blist-1
      def __getitem__(self, index):
          if isinstance(index, slice):
              keys = self._mapping._sortedkeys[index]
-@@ -54,7 +54,7 @@
+@@ -54,7 +54,7 @@ def __getitem__(self, index):
          key = self._mapping._sortedkeys[index]
          return self._mapping[key]
  
@@ -110,10 +102,11 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sorteddict.py blist-1
      def __init__(self, *args, **kw):
          if hasattr(self, '__missing__'):
              self._map = missingdict()
-diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sortedlist.py blist-1.3.6/blist/_sortedlist.py
---- blist-1.3.6.orig/blist/_sortedlist.py	2012-12-10 07:36:35.000000000 +0600
-+++ blist-1.3.6/blist/_sortedlist.py	2021-12-14 23:04:49.234277218 +0600
-@@ -25,7 +25,7 @@
+diff --git a/blist/_sortedlist.py b/blist/_sortedlist.py
+index b34f69e..7b8a2f3 100644
+--- a/blist/_sortedlist.py
++++ b/blist/_sortedlist.py
+@@ -25,7 +25,7 @@ def __exit__(self, exc_type, exc_val, exc_tb):
              del self.local.repr_count[self.ob_id]
          return False
  
@@ -122,7 +115,7 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sortedlist.py blist-1
      def __init__(self, iterable=(), key=None):
          self._key = key
          if key is not None and not hasattr(key, '__call__'):
-@@ -428,23 +428,23 @@
+@@ -428,23 +428,23 @@ def __iter__(self):
  
  def safe_cmp(f):
      def g(self, other):
@@ -156,7 +149,7 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sortedlist.py blist-1
  
      def __ior__(self, it):
          if self is it:
-@@ -476,7 +476,7 @@
+@@ -476,7 +476,7 @@ def __rsub__(self, other):
          return self._from_iterable(other) - self
  
      def _make_set(self, iterable):
@@ -165,10 +158,11 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/_sortedlist.py blist-1
              return iterable
          return self._from_iterable(iterable)
  
-diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/test/sortedlist_tests.py blist-1.3.6/blist/test/sortedlist_tests.py
---- blist-1.3.6.orig/blist/test/sortedlist_tests.py	2012-12-10 07:34:03.000000000 +0600
-+++ blist-1.3.6/blist/test/sortedlist_tests.py	2021-12-14 23:04:49.247610548 +0600
-@@ -29,7 +29,7 @@
+diff --git a/blist/test/sortedlist_tests.py b/blist/test/sortedlist_tests.py
+index 1cff8b9..ad392e9 100644
+--- a/blist/test/sortedlist_tests.py
++++ b/blist/test/sortedlist_tests.py
+@@ -29,7 +29,7 @@ def test_empty_repr(self):
                           repr(self.type2test()))
  
      def validate_comparison(self, instance):
@@ -177,7 +171,7 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/test/sortedlist_tests.
              ops = ['ne', 'or', 'and', 'xor', 'sub']
          else:
              ops = ['lt', 'gt', 'le', 'ge', 'ne', 'or', 'and', 'xor', 'sub']
-@@ -185,7 +185,7 @@
+@@ -185,7 +185,7 @@ def __cmp__(self, other): # pragma: no cover
      def test_order(self):
          stuff = [self.build_item(random.randrange(1000000))
                   for i in range(1000)]
@@ -186,3 +180,28 @@ diff '--color=auto' --recursive -u blist-1.3.6.orig/blist/test/sortedlist_tests.
              stuff = set(stuff)
          sorted_stuff = list(sorted(stuff))
          u = self.type2test
+
+From c93a7f39d969499a66979d1d3b27fd813ff71564 Mon Sep 17 00:00:00 2001
+From: Stefano Rivera <stefano@rivera.za.net>
+Date: Mon, 2 May 2022 10:36:43 -0400
+Subject: [PATCH 3/3] Add backwards-compatibility #define for Py_SET_REFCNT
+
+---
+ blist/_blist.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/blist/_blist.c b/blist/_blist.c
+index cacd6f2..554b42e 100644
+--- a/blist/_blist.c
++++ b/blist/_blist.c
+@@ -124,6 +124,10 @@
+ #define PyInt_FromLong PyLong_FromLong
+ #endif
+ 
++#if PY_VERSION_HEX < 0x030900A4
++#  define Py_SET_REFCNT(obj, refcnt) ((Py_REFCNT(obj) = (refcnt)), (void)0)
++#endif
++
+ #ifndef BLIST_IN_PYTHON
+ #include "blist.h"
+ #endif
