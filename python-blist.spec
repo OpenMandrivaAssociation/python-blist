@@ -13,10 +13,10 @@ Summary:        a list-like type with better asymptotic performance and similar 
 License:        BSD
 URL:            http://pypi.python.org/pypi/blist/
 Source0:        https://pypi.python.org/packages/source/b/blist/blist-%{version}.tar.gz
-Patch0:		https://github.com/DanielStutzbach/blist/pull/84.patch
-Patch1:		https://github.com/DanielStutzbach/blist/pull/85.patch
-Patch2:		https://github.com/DanielStutzbach/blist/pull/91.patch
-Patch3:		https://github.com/DanielStutzbach/blist/pull/92.patch
+#Patch0:		https://github.com/DanielStutzbach/blist/pull/84.patch
+#Patch1:		https://github.com/DanielStutzbach/blist/pull/85.patch
+#Patch2:		https://github.com/DanielStutzbach/blist/pull/91.patch
+#Patch3:		https://github.com/DanielStutzbach/blist/pull/92.patch
 Patch4:         python3.10.patch
 
 BuildRequires:  pkgconfig(python)
