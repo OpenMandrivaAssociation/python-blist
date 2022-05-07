@@ -17,7 +17,7 @@ Source0:        https://pypi.python.org/packages/source/b/blist/blist-%{version}
 #Patch1:		https://github.com/DanielStutzbach/blist/pull/85.patch
 #Patch2:		https://github.com/DanielStutzbach/blist/pull/91.patch
 #Patch3:		https://github.com/DanielStutzbach/blist/pull/92.patch
-Patch4:         0001 Catch StopIteration in a generator and return instea.patch
+Patch4:         0001CatchStopIterationinageneratorandreturninstea.patch
 Patch5:         python3.9.patch
 Patch6:         python3.11.patch
 
