@@ -30,7 +30,7 @@ types.
 
 %prep
 %setup -q -n %{pypi_name}-%{version}
-%autopatch -p0
+%autopatch -p1
 
 # Remove bundled egg-info
 rm -rf %{pypi_name}.egg-info
