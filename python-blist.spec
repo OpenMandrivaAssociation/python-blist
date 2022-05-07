@@ -36,6 +36,8 @@ types.
 rm -rf %{pypi_name}.egg-info
 
 %build
+export CC=gcc
+export CXX=g++
 %py_build
 
 %install
