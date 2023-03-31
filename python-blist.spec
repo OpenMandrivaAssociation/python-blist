@@ -7,7 +7,7 @@
 
 Name:           python-blist
 Version:        1.3.6
-Release:        6
+Release:        7
 Group:          Development/Python
 Summary:        a list-like type with better asymptotic performance and similar performance on small lists
 License:        BSD
