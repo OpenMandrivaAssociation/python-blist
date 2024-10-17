@@ -11,7 +11,7 @@ Release:        7
 Group:          Development/Python
 Summary:        a list-like type with better asymptotic performance and similar performance on small lists
 License:        BSD
-URL:            http://pypi.python.org/pypi/blist/
+URL:            https://pypi.python.org/pypi/blist/
 Source0:        https://pypi.python.org/packages/source/b/blist/blist-%{version}.tar.gz
 Patch0:		https://github.com/DanielStutzbach/blist/pull/84.patch
 Patch1:		https://github.com/DanielStutzbach/blist/pull/85.patch
